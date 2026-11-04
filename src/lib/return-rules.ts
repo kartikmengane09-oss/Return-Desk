@@ -1,78 +1,42 @@
-export type ReturnStatus =
-  | "OPEN"
-  | "IN_REVIEW"
-  | "APPROVED"
-  | "REJECTED"
-  | "COMPLETED";
-
-export type Resolution =
-  | "REFUND"
-  | "REPLACEMENT"
-  | "STORE_CREDIT";
-
-export type ReturnRequestData = {
-  status: ReturnStatus;
-  resolution: Resolution | null;
-  refundAmount: number | null;
-};
-
-export type ReturnAction =
-  | "START_REVIEW"
-  | "APPROVE"
-  | "REJECT"
-  | "COMPLETE";
+import {
+  ReturnStatus,
+  ReturnResolution,
+} from "@prisma/client";
 
 export function canPerformAction(
-  status: ReturnStatus,
-  action: ReturnAction
-): boolean {
-  switch (action) {
-    case "START_REVIEW":
-      return status === "OPEN";
+  currentStatus: ReturnStatus,
+  action: "START_REVIEW" | "APPROVE" | "REJECT" | "COMPLETE"
+) {
+  const allowedActions: Record<ReturnStatus, string[]> = {
+    OPEN: ["START_REVIEW"],
+    IN_REVIEW: ["APPROVE", "REJECT"],
+    APPROVED: ["COMPLETE"],
+    REJECTED: [],
+    COMPLETED: [],
+  };
 
-    case "APPROVE":
-    case "REJECT":
-      return status === "IN_REVIEW";
-
-    case "COMPLETE":
-      return status === "APPROVED";
-
-    default:
-      return false;
-  }
+  return allowedActions[currentStatus].includes(action);
 }
 
 export function validateResolution(
-  resolution: Resolution | null,
-  refundAmount: number | null
-): string | null {
-  if (!resolution) {
-    return "A resolution is required.";
-  }
-
+  resolution: ReturnResolution,
+  refundAmount?: number
+) {
   if (resolution === "REFUND") {
-    if (
-      refundAmount === null ||
-      !Number.isFinite(refundAmount) ||
-      refundAmount <= 0
-    ) {
-      return "Refund amount must be greater than zero.";
-    }
-  } else if (refundAmount !== null) {
-    return "Refund amount is only allowed for refund resolutions.";
+    return refundAmount !== undefined && refundAmount > 0;
   }
 
-  return null;
+  return true;
 }
 
-export function isFinalStatus(status: ReturnStatus): boolean {
+export function isFinalStatus(status: ReturnStatus) {
   return status === "REJECTED" || status === "COMPLETED";
 }
 
-export function canEditRequest(status: ReturnStatus): boolean {
-  return !isFinalStatus(status) && status !== "APPROVED";
+export function canEditRequest(status: ReturnStatus) {
+  return status === "OPEN";
 }
 
-export function canSoftDelete(status: ReturnStatus): boolean {
+export function canSoftDelete(status: ReturnStatus) {
   return status === "OPEN" || status === "REJECTED";
-}
+}``

@@ -23,26 +23,26 @@ enum ReturnReason {
   OTHER
 }
 
-enum Resolution {
+enum ReturnResolution {
   REFUND
   REPLACEMENT
   STORE_CREDIT
 }
 
 model ReturnRequest {
-  id             String       @id @default(cuid())
-  orderNumber    String
-  itemName       String
-  customerName   String
-  customerEmail  String
-  reason         ReturnReason
-  status         ReturnStatus @default(OPEN)
-  resolution     Resolution?
-  refundAmount   Decimal?     @db.Decimal(10, 2)
-  notes          Note[]
-  isDeleted      Boolean      @default(false)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id            String            @id @default(cuid())
+  orderNumber   String
+  itemName      String
+  customerName  String
+  customerEmail String
+  reason        ReturnReason
+  status        ReturnStatus      @default(OPEN)
+  resolution    ReturnResolution?
+  refundAmount  Decimal?          @db.Decimal(10, 2)
+  notes         Note[]
+  isDeleted     Boolean           @default(false)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
   @@index([status])
   @@index([orderNumber])
@@ -50,11 +50,11 @@ model ReturnRequest {
 }
 
 model Note {
-  id             String        @id @default(cuid())
-  content        String
-  createdAt      DateTime      @default(now())
+  id              String        @id @default(cuid())
+  content         String
+  createdAt       DateTime      @default(now())
   returnRequestId String
-  returnRequest  ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
+  returnRequest   ReturnRequest @relation(fields: [returnRequestId], references: [id], onDelete: Cascade)
 
   @@index([returnRequestId])
 }
