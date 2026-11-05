@@ -31,7 +31,7 @@ enum ReturnResolution {
 
 model ReturnRequest {
   id            String            @id @default(cuid())
-  orderNumber   String
+  orderNumber   String            @unique
   itemName      String
   customerName  String
   customerEmail String
@@ -41,11 +41,12 @@ model ReturnRequest {
   refundAmount  Decimal?          @db.Decimal(10, 2)
   notes         Note[]
   isDeleted     Boolean           @default(false)
+  deletedAt     DateTime?
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
 
   @@index([status])
-  @@index([orderNumber])
+  @@index([deletedAt])
   @@index([createdAt])
 }
 

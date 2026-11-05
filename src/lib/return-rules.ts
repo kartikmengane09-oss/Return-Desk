@@ -34,9 +34,9 @@ export function isFinalStatus(status: ReturnStatus) {
 }
 
 export function canEditRequest(status: ReturnStatus) {
-  return status === "OPEN";
+  return status === "OPEN" || status === "IN_REVIEW";
 }
 
 export function canSoftDelete(status: ReturnStatus) {
   return status === "OPEN" || status === "REJECTED";
-}``
+}
